@@ -152,16 +152,22 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Shader.cpp" />
+    <ClCompile Include="Texture2D.cpp" />
     <ClCompile Include="vendor\include\glad\glad.c" />
     <ClCompile Include="vendor\include\stb\stb_image_impl.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\default.frag" />
     <None Include="Shaders\default.vert" />
+    <None Include="Shaders\gouraud.frag" />
+    <None Include="Shaders\gouraud.vert" />
+    <None Include="Shaders\light.frag" />
+    <None Include="Shaders\light.vert" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Shader.h" />
+    <ClInclude Include="Texture2D.h" />
     <ClInclude Include="vendor\include\stb\stb_image.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -37,65 +37,72 @@ float lastYPos = HEIGHT / 2;
 
 Camera camera{ glm::vec3(0.0f, 0.0f, 3.0f) };
 
-// Vertices of a cube
+// Vertex data of a cube
 float vertices[] = {
-//		Positions				Colors						Texture Coords
-		-0.5f, -0.5f, -0.5f,	1.0f, 1.0f, 1.0f, 1.0f,		0.0f, 0.0f,
-		 0.5f, -0.5f, -0.5f,	1.0f, 1.0f, 1.0f, 1.0f,		1.0f, 0.0f,
-		 0.5f,  0.5f, -0.5f,	1.0f, 1.0f, 1.0f, 1.0f,		1.0f, 1.0f,
-		 0.5f,  0.5f, -0.5f,	1.0f, 1.0f, 1.0f, 1.0f,		1.0f, 1.0f,
-		-0.5f,  0.5f, -0.5f,	1.0f, 1.0f, 1.0f, 1.0f,		0.0f, 1.0f,
-		-0.5f, -0.5f, -0.5f,	1.0f, 1.0f, 1.0f, 1.0f,		0.0f, 0.0f,
+	// Positions			Normals
+	// Front face
+	-0.5f, -0.5f, -0.5f,	 0.0f,  0.0f, -1.0f,
+	 0.5f, -0.5f, -0.5f,	 0.0f,  0.0f, -1.0f,
+	 0.5f,  0.5f, -0.5f,	 0.0f,  0.0f, -1.0f,
+	 0.5f,  0.5f, -0.5f,	 0.0f,  0.0f, -1.0f,
+	-0.5f,  0.5f, -0.5f,	 0.0f,  0.0f, -1.0f,
+	-0.5f, -0.5f, -0.5f,	 0.0f,  0.0f, -1.0f,
 
-		-0.5f, -0.5f,  0.5f,	1.0f, 1.0f, 1.0f, 1.0f,		0.0f, 0.0f,
-		 0.5f, -0.5f,  0.5f,	1.0f, 1.0f, 1.0f, 1.0f,		1.0f, 0.0f,
-		 0.5f,  0.5f,  0.5f,	1.0f, 1.0f, 1.0f, 1.0f,		1.0f, 1.0f,
-		 0.5f,  0.5f,  0.5f,	1.0f, 1.0f, 1.0f, 1.0f,		1.0f, 1.0f,
-		-0.5f,  0.5f,  0.5f,	1.0f, 1.0f, 1.0f, 1.0f,		0.0f, 1.0f,
-		-0.5f, -0.5f,  0.5f,	1.0f, 1.0f, 1.0f, 1.0f,		0.0f, 0.0f,
+	// Back face
+	-0.5f, -0.5f,  0.5f,	 0.0f,  0.0f, 1.0f,
+	 0.5f, -0.5f,  0.5f,	 0.0f,  0.0f, 1.0f,
+	 0.5f,  0.5f,  0.5f,	 0.0f,  0.0f, 1.0f,
+	 0.5f,  0.5f,  0.5f,	 0.0f,  0.0f, 1.0f,
+	-0.5f,  0.5f,  0.5f,	 0.0f,  0.0f, 1.0f,
+	-0.5f, -0.5f,  0.5f,	 0.0f,  0.0f, 1.0f,
 
-		-0.5f,  0.5f,  0.5f,	1.0f, 1.0f, 1.0f, 1.0f,		1.0f, 0.0f,
-		-0.5f,  0.5f, -0.5f,	1.0f, 1.0f, 1.0f, 1.0f,		1.0f, 1.0f,
-		-0.5f, -0.5f, -0.5f,	1.0f, 1.0f, 1.0f, 1.0f,		0.0f, 1.0f,
-		-0.5f, -0.5f, -0.5f,	1.0f, 1.0f, 1.0f, 1.0f,		0.0f, 1.0f,
-		-0.5f, -0.5f,  0.5f,	1.0f, 1.0f, 1.0f, 1.0f,		0.0f, 0.0f,
-		-0.5f,  0.5f,  0.5f,	1.0f, 1.0f, 1.0f, 1.0f,		1.0f, 0.0f,
+	// Left Face
+	-0.5f,  0.5f,  0.5f,	-1.0f,  0.0f,  0.0f,
+	-0.5f,  0.5f, -0.5f,	-1.0f,  0.0f,  0.0f,
+	-0.5f, -0.5f, -0.5f,	-1.0f,  0.0f,  0.0f,
+	-0.5f, -0.5f, -0.5f,	-1.0f,  0.0f,  0.0f,
+	-0.5f, -0.5f,  0.5f,	-1.0f,  0.0f,  0.0f,
+	-0.5f,  0.5f,  0.5f,	-1.0f,  0.0f,  0.0f,
 
-		 0.5f,  0.5f,  0.5f,	1.0f, 1.0f, 1.0f, 1.0f,		1.0f, 0.0f,
-		 0.5f,  0.5f, -0.5f,	1.0f, 1.0f, 1.0f, 1.0f,		1.0f, 1.0f,
-		 0.5f, -0.5f, -0.5f,	1.0f, 1.0f, 1.0f, 1.0f,		0.0f, 1.0f,
-		 0.5f, -0.5f, -0.5f,	1.0f, 1.0f, 1.0f, 1.0f,		0.0f, 1.0f,
-		 0.5f, -0.5f,  0.5f,	1.0f, 1.0f, 1.0f, 1.0f,		0.0f, 0.0f,
-		 0.5f,  0.5f,  0.5f,	1.0f, 1.0f, 1.0f, 1.0f,		1.0f, 0.0f,
+	// Right face
+	 0.5f,  0.5f,  0.5f,	 1.0f,  0.0f,  0.0f,
+	 0.5f,  0.5f, -0.5f,	 1.0f,  0.0f,  0.0f,
+	 0.5f, -0.5f, -0.5f,	 1.0f,  0.0f,  0.0f,
+	 0.5f, -0.5f, -0.5f,	 1.0f,  0.0f,  0.0f,
+	 0.5f, -0.5f,  0.5f,	 1.0f,  0.0f,  0.0f,
+	 0.5f,  0.5f,  0.5f,	 1.0f,  0.0f,  0.0f,
 
-		-0.5f, -0.5f, -0.5f,	1.0f, 1.0f, 1.0f, 1.0f,		0.0f, 1.0f,
-		 0.5f, -0.5f, -0.5f,	1.0f, 1.0f, 1.0f, 1.0f,		1.0f, 1.0f,
-		 0.5f, -0.5f,  0.5f,	1.0f, 1.0f, 1.0f, 1.0f,		1.0f, 0.0f,
-		 0.5f, -0.5f,  0.5f,	1.0f, 1.0f, 1.0f, 1.0f,		1.0f, 0.0f,
-		-0.5f, -0.5f,  0.5f,	1.0f, 1.0f, 1.0f, 1.0f,		0.0f, 0.0f,
-		-0.5f, -0.5f, -0.5f,	1.0f, 1.0f, 1.0f, 1.0f,		0.0f, 1.0f,
+	 // Bottom face
+	 -0.5f, -0.5f, -0.5f,	 0.0f, -1.0f,  0.0f,
+	  0.5f, -0.5f, -0.5f,	 0.0f, -1.0f,  0.0f,
+	  0.5f, -0.5f,  0.5f,	 0.0f, -1.0f,  0.0f,
+	  0.5f, -0.5f,  0.5f,	 0.0f, -1.0f,  0.0f,
+	 -0.5f, -0.5f,  0.5f,	 0.0f, -1.0f,  0.0f,
+	 -0.5f, -0.5f, -0.5f,	 0.0f, -1.0f,  0.0f,
 
-		-0.5f,  0.5f, -0.5f,	1.0f, 1.0f, 1.0f, 1.0f,		0.0f, 1.0f,
-		 0.5f,  0.5f, -0.5f,	1.0f, 1.0f, 1.0f, 1.0f,		1.0f, 1.0f,
-		 0.5f,  0.5f,  0.5f,	1.0f, 1.0f, 1.0f, 1.0f,		1.0f, 0.0f,
-		 0.5f,  0.5f,  0.5f,	1.0f, 1.0f, 1.0f, 1.0f,		1.0f, 0.0f,
-		-0.5f,  0.5f,  0.5f,	1.0f, 1.0f, 1.0f, 1.0f,		0.0f, 0.0f,
-		-0.5f,  0.5f, -0.5f,	1.0f, 1.0f, 1.0f, 1.0f,		0.0f, 1.0f
+	 // Top face
+	 -0.5f,  0.5f, -0.5f,	 0.0f,  1.0f,  0.0f,
+	  0.5f,  0.5f, -0.5f,	 0.0f,  1.0f,  0.0f,
+	  0.5f,  0.5f,  0.5f,	 0.0f,  1.0f,  0.0f,
+	  0.5f,  0.5f,  0.5f,	 0.0f,  1.0f,  0.0f,
+	 -0.5f,  0.5f,  0.5f,	 0.0f,  1.0f,  0.0f,
+	 -0.5f,  0.5f, -0.5f,	 0.0f,  1.0f,  0.0f
 };
+
 
 // Positions of cube objects in world space
-glm::vec3 cubePositions[] = {
-	glm::vec3(0.0f,  0.0f,  0.0f),
-	glm::vec3(2.0f,  5.0f, -15.0f),
-	glm::vec3(-1.5f, -2.2f, -2.5f),
-	glm::vec3(-3.8f, -2.0f, -12.3f),
-	glm::vec3(2.4f, -0.4f, -3.5f),
-	glm::vec3(-1.7f,  3.0f, -7.5f),
-	glm::vec3(1.3f, -2.0f, -2.5f),
-	glm::vec3(1.5f,  2.0f, -2.5f),
-	glm::vec3(1.5f,  0.2f, -1.5f),
-	glm::vec3(-1.3f,  1.0f, -1.5f)
-};
+//glm::vec3 cubePositions[] = {
+//	glm::vec3(0.0f,  0.0f,  0.0f),
+//	glm::vec3(2.0f,  5.0f, -15.0f),
+//	glm::vec3(-1.5f, -2.2f, -2.5f),
+//	glm::vec3(-3.8f, -2.0f, -12.3f),
+//	glm::vec3(2.4f, -0.4f, -3.5f),
+//	glm::vec3(-1.7f,  3.0f, -7.5f),
+//	glm::vec3(1.3f, -2.0f, -2.5f),
+//	glm::vec3(1.5f,  2.0f, -2.5f),
+//	glm::vec3(1.5f,  0.2f, -1.5f),
+//	glm::vec3(-1.3f,  1.0f, -1.5f)
+//};
 
 //GLfloat vertices[] = {
 //	// Positions (xyz)		// Colors (rgba)			// Texture Coords
@@ -120,13 +127,6 @@ glm::vec3 cubePositions[] = {
 //	0, 1, 3,
 //	1, 2, 3
 //};
-
-glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
-glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
-glm::vec3 cameraDirection = glm::normalize(cameraPos - cameraTarget);
-glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
-glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
-glm::vec3 cameraRight = glm::normalize(glm::cross(cameraUp, cameraDirection));
 
 int main() {
 	// Initialize GLFW
@@ -153,15 +153,19 @@ int main() {
 	glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
 	glfwSetCursorPosCallback(window, cursorPosCallback);
 	glfwSetScrollCallback(window, scrollCallback);
-
+	
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 	glViewport(0, 0, WIDTH, HEIGHT);
-	 
+
+	Shader shaderProgram{ "Shaders/default.vert", "Shaders/default.frag" };
+	Shader lightShaderProgram{ "Shaders/light.vert", "Shaders/light.frag" };
+	Shader gouraudShaderProgram{ "Shaders/gouraud.vert", "Shaders/gouraud.frag" };
+	
 	// Configure VAO
-	unsigned int vao;
-	glGenVertexArrays(1, &vao);
-	glBindVertexArray(vao);
+	unsigned int objVAO;
+	glGenVertexArrays(1, &objVAO);
+	glBindVertexArray(objVAO);
 
 	//// Configure EBO
 	//unsigned int ebo;
@@ -175,63 +179,33 @@ int main() {
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 9, (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 6, (void*)0);
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 9, (void*)(3 * sizeof(GLfloat)));
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 6, (void*)(3 * sizeof(GLfloat)));
 	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 9, (void*)(7 * sizeof(GLfloat)));
-	glEnableVertexAttribArray(2);
 
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-	Shader shaderProgram{ "Shaders/default.vert", "Shaders/default.frag" };
+	unsigned int lightVAO;
+	glGenVertexArrays(1, &lightVAO);
+	glBindVertexArray(lightVAO);
 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 6, (void*)0);
+	glEnableVertexAttribArray(0);
 
-	stbi_set_flip_vertically_on_load(true);
+	glBindVertexArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-	unsigned int texture1, texture2;
-	int width, height, numChannels;
-	glGenTextures(1, &texture1);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, texture1);
-	unsigned char* data = stbi_load("Textures/container.jpg", &width, &height, &numChannels, 0);
-	if (data) {
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-		glGenerateMipmap(GL_TEXTURE_2D);
-	}
-	else {
-		std::cout << "Failed to load container.jpg" << std::endl;
-	}
-	glBindTexture(GL_TEXTURE_2D, 0);
-
-	glGenTextures(1, &texture2);
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, texture2);
-	data = stbi_load("Textures/smiley.png", &width, &height, &numChannels, 0);
-	if (data) {
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-		glGenerateMipmap(GL_TEXTURE_2D);
-	}
-	else {
-		std::cout << "Failed to load smiley.png" << std::endl;
-	}
-	glBindTexture(GL_TEXTURE_2D, 0);
-	stbi_image_free(data);
-
-	shaderProgram.use();
-	shaderProgram.setUniformInt("texture1", 0);
-	shaderProgram.setUniformInt("texture2", 1);
-	shaderProgram.setUniformFloat("mixRatio", 0.2f);
+	glEnable(GL_DEPTH_TEST);
 
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-	glEnable(GL_DEPTH_TEST);
+	glm::vec3 objColor{ 1.0f, 0.5f, 0.2f };
+	glm::vec3 lightColor{ 1.0f, 1.0f, 1.0f };
+	glm::vec3 lightPos{ 1.2f, 1.0f, 2.0f };
 
 	// Render loop
 	while (!glfwWindowShouldClose(window)) {
@@ -244,41 +218,55 @@ int main() {
 		glClearColor(0.3f, 0.05f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, texture1);
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, texture2);
-
-		glBindVertexArray(vao);
+		glm::mat4 objModel{ 1.0f };
 
 		glm::mat4 view = camera.getViewMatrix();
 
 		glm::mat4 proj = glm::perspective(glm::radians(camera.fov), (float)WIDTH / (float)HEIGHT, 0.1f, 100.0f);
+		
+		//glm::vec3 lightPos{ cos(currFrame) * 2, sin(currFrame) * 2, cos(currFrame)};
+		glm::vec3 vLightPos = glm::vec3(view * glm::vec4(lightPos, 1.0));
 
+		shaderProgram.use();
+
+		glUniformMatrix4fv(glGetUniformLocation(shaderProgram.id, "model"), 1, GL_FALSE, glm::value_ptr(objModel));
 		glUniformMatrix4fv(glGetUniformLocation(shaderProgram.id, "view"), 1, GL_FALSE, glm::value_ptr(view));
 		glUniformMatrix4fv(glGetUniformLocation(shaderProgram.id, "proj"), 1, GL_FALSE, glm::value_ptr(proj));
+		glUniform3fv(glGetUniformLocation(shaderProgram.id, "objColor"), 1, glm::value_ptr(objColor));
+		glUniform3fv(glGetUniformLocation(shaderProgram.id, "lightColor"), 1, glm::value_ptr(lightColor));
+		glUniform3fv(glGetUniformLocation(shaderProgram.id, "lightPos"), 1, glm::value_ptr(vLightPos));
 
-		for (int i = 0; i < 10; ++i) {
-			glm::mat4 model = glm::mat4(1.0f);
-			model = glm::translate(model, cubePositions[i]);
-			if (i % 3 == 0) {
-				model = glm::rotate(model, (float)glfwGetTime()*(i+1)/2.0f, glm::vec3(1.0f, 0.5f, 0.5f));
-			}
-			else {
-				model = glm::rotate(model, i * 20.0f, glm::vec3(0.7f, 0.5f, 0.5f));
-			}
+		//gouraudShaderProgram.use();
 
-			glUniformMatrix4fv(glGetUniformLocation(shaderProgram.id, "model"), 1, GL_FALSE, glm::value_ptr(model));
+		//glUniformMatrix4fv(glGetUniformLocation(gouraudShaderProgram.id, "model"), 1, GL_FALSE, glm::value_ptr(objModel));
+		//glUniformMatrix4fv(glGetUniformLocation(gouraudShaderProgram.id, "view"), 1, GL_FALSE, glm::value_ptr(view));
+		//glUniformMatrix4fv(glGetUniformLocation(gouraudShaderProgram.id, "proj"), 1, GL_FALSE, glm::value_ptr(proj));
+		//glUniform3fv(glGetUniformLocation(gouraudShaderProgram.id, "objColor"), 1, glm::value_ptr(objColor));
+		//glUniform3fv(glGetUniformLocation(gouraudShaderProgram.id, "lightColor"), 1, glm::value_ptr(lightColor));
+		//glUniform3fv(glGetUniformLocation(gouraudShaderProgram.id, "lightPos"), 1, glm::value_ptr(vLightPos));
 
-			glDrawArrays(GL_TRIANGLES, 0, sizeof(vertices));
-		}
-		
+		glBindVertexArray(objVAO);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+		glBindVertexArray(0);
+
+		lightShaderProgram.use();
+
+		glm::mat4 lightModel{ 1.0f };
+		lightModel = glm::translate(lightModel, lightPos);
+		lightModel = glm::scale(lightModel, glm::vec3(0.2f));		
+
+		glUniformMatrix4fv(glGetUniformLocation(lightShaderProgram.id, "model"), 1, GL_FALSE, glm::value_ptr(lightModel));
+		glUniformMatrix4fv(glGetUniformLocation(lightShaderProgram.id, "view"), 1, GL_FALSE, glm::value_ptr(view));
+		glUniformMatrix4fv(glGetUniformLocation(lightShaderProgram.id, "proj"), 1, GL_FALSE, glm::value_ptr(proj));
+
+		glBindVertexArray(lightVAO);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
 		glBindVertexArray(0);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
-	glDeleteVertexArrays(1, &vao);
+	glDeleteVertexArrays(1, &objVAO);
 	glDeleteBuffers(1, &vbo);
 	glfwTerminate();
 

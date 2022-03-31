@@ -14,6 +14,7 @@ enum class CAMERA_MOVEMENT {
 
 class Camera {
 public:
+	glm::vec3 cameraPosition;
 	float yaw, pitch;
 	float mouseSensitivity, scrollSensitivity;
 	float speed, speedMultiplier;
@@ -32,7 +33,6 @@ public:
 	glm::mat4 getViewMatrix();
 
 private:
-	glm::vec3 cameraPosition;
 	glm::vec3 cameraFront;
 	glm::vec3 worldUp;
 	float tempSpeed;
