@@ -227,14 +227,28 @@ int main() {
 		//glm::vec3 lightPos{ cos(currFrame) * 2, sin(currFrame) * 2, cos(currFrame)};
 		glm::vec3 vLightPos = glm::vec3(view * glm::vec4(lightPos, 1.0));
 
+		lightColor.x = sin(glfwGetTime() * 2.0f);
+		lightColor.y = sin(glfwGetTime() * 0.7f);
+		lightColor.z = sin(glfwGetTime() * 1.3f);
+
+		glm::vec3 diffuseColor = lightColor * glm::vec3(0.5f);
+		glm::vec3 ambientColor = lightColor * glm::vec3(0.2f);
+
 		shaderProgram.use();
 
 		glUniformMatrix4fv(glGetUniformLocation(shaderProgram.id, "model"), 1, GL_FALSE, glm::value_ptr(objModel));
 		glUniformMatrix4fv(glGetUniformLocation(shaderProgram.id, "view"), 1, GL_FALSE, glm::value_ptr(view));
 		glUniformMatrix4fv(glGetUniformLocation(shaderProgram.id, "proj"), 1, GL_FALSE, glm::value_ptr(proj));
-		glUniform3fv(glGetUniformLocation(shaderProgram.id, "objColor"), 1, glm::value_ptr(objColor));
-		glUniform3fv(glGetUniformLocation(shaderProgram.id, "lightColor"), 1, glm::value_ptr(lightColor));
-		glUniform3fv(glGetUniformLocation(shaderProgram.id, "lightPos"), 1, glm::value_ptr(vLightPos));
+
+		glUniform3fv(glGetUniformLocation(shaderProgram.id, "material.ambient"), 1, glm::value_ptr(glm::vec3(0.329412f, 0.223529f, 0.027451f)));
+		glUniform3fv(glGetUniformLocation(shaderProgram.id, "material.diffuse"), 1, glm::value_ptr(glm::vec3(0.780392f, 0.568627f, 0.113725f)));
+		glUniform3fv(glGetUniformLocation(shaderProgram.id, "material.specular"), 1, glm::value_ptr(glm::vec3(0.992157f, 0.941176f, 0.807843f)));
+		glUniform1f(glGetUniformLocation(shaderProgram.id, "material.shininess"), 128.0f * 0.21794872f);
+
+		glUniform3fv(glGetUniformLocation(shaderProgram.id, "light.position"), 1, glm::value_ptr(vLightPos));
+		glUniform3fv(glGetUniformLocation(shaderProgram.id, "light.ambient"), 1, glm::value_ptr(ambientColor));
+		glUniform3fv(glGetUniformLocation(shaderProgram.id, "light.diffuse"), 1, glm::value_ptr(diffuseColor));
+		glUniform3fv(glGetUniformLocation(shaderProgram.id, "light.specular"), 1, glm::value_ptr(glm::vec3(1.0f)));
 
 		//gouraudShaderProgram.use();
 
@@ -258,6 +272,7 @@ int main() {
 		glUniformMatrix4fv(glGetUniformLocation(lightShaderProgram.id, "model"), 1, GL_FALSE, glm::value_ptr(lightModel));
 		glUniformMatrix4fv(glGetUniformLocation(lightShaderProgram.id, "view"), 1, GL_FALSE, glm::value_ptr(view));
 		glUniformMatrix4fv(glGetUniformLocation(lightShaderProgram.id, "proj"), 1, GL_FALSE, glm::value_ptr(proj));
+		glUniform3fv(glGetUniformLocation(lightShaderProgram.id, "lightColor"), 1, glm::value_ptr(lightColor));
 
 		glBindVertexArray(lightVAO);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
