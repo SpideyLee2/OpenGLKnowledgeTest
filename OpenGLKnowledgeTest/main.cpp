@@ -17,6 +17,7 @@
 
 #include "Shader.h"
 #include "Camera.h"
+#include "Texture2D.h"
 
 #pragma region FunctionDeclarations
 void processInput(GLFWwindow* window);
@@ -39,54 +40,48 @@ Camera camera{ glm::vec3(0.0f, 0.0f, 3.0f) };
 
 // Vertex data of a cube
 float vertices[] = {
-	// Positions			Normals
-	// Front face
-	-0.5f, -0.5f, -0.5f,	 0.0f,  0.0f, -1.0f,
-	 0.5f, -0.5f, -0.5f,	 0.0f,  0.0f, -1.0f,
-	 0.5f,  0.5f, -0.5f,	 0.0f,  0.0f, -1.0f,
-	 0.5f,  0.5f, -0.5f,	 0.0f,  0.0f, -1.0f,
-	-0.5f,  0.5f, -0.5f,	 0.0f,  0.0f, -1.0f,
-	-0.5f, -0.5f, -0.5f,	 0.0f,  0.0f, -1.0f,
+	// Positions			// Normals				// Texture Coords
+	-0.5f, -0.5f, -0.5f,	 0.0f,  0.0f, -1.0f,	0.0f, 0.0f,
+	 0.5f, -0.5f, -0.5f,	 0.0f,  0.0f, -1.0f,	1.0f, 0.0f,
+	 0.5f,  0.5f, -0.5f,	 0.0f,  0.0f, -1.0f,	1.0f, 1.0f,
+	 0.5f,  0.5f, -0.5f,	 0.0f,  0.0f, -1.0f,	1.0f, 1.0f,
+	-0.5f,  0.5f, -0.5f,	 0.0f,  0.0f, -1.0f,	0.0f, 1.0f,
+	-0.5f, -0.5f, -0.5f,	 0.0f,  0.0f, -1.0f,	0.0f, 0.0f,
 
-	// Back face
-	-0.5f, -0.5f,  0.5f,	 0.0f,  0.0f, 1.0f,
-	 0.5f, -0.5f,  0.5f,	 0.0f,  0.0f, 1.0f,
-	 0.5f,  0.5f,  0.5f,	 0.0f,  0.0f, 1.0f,
-	 0.5f,  0.5f,  0.5f,	 0.0f,  0.0f, 1.0f,
-	-0.5f,  0.5f,  0.5f,	 0.0f,  0.0f, 1.0f,
-	-0.5f, -0.5f,  0.5f,	 0.0f,  0.0f, 1.0f,
+	-0.5f, -0.5f,  0.5f,	 0.0f,  0.0f,  1.0f,	0.0f, 0.0f,
+	 0.5f, -0.5f,  0.5f,	 0.0f,  0.0f,  1.0f,	1.0f, 0.0f,
+	 0.5f,  0.5f,  0.5f,	 0.0f,  0.0f,  1.0f,	1.0f, 1.0f,
+	 0.5f,  0.5f,  0.5f,	 0.0f,  0.0f,  1.0f,	1.0f, 1.0f,
+	-0.5f,  0.5f,  0.5f,	 0.0f,  0.0f,  1.0f,	0.0f, 1.0f,
+	-0.5f, -0.5f,  0.5f,	 0.0f,  0.0f,  1.0f,	0.0f, 0.0f,
 
-	// Left Face
-	-0.5f,  0.5f,  0.5f,	-1.0f,  0.0f,  0.0f,
-	-0.5f,  0.5f, -0.5f,	-1.0f,  0.0f,  0.0f,
-	-0.5f, -0.5f, -0.5f,	-1.0f,  0.0f,  0.0f,
-	-0.5f, -0.5f, -0.5f,	-1.0f,  0.0f,  0.0f,
-	-0.5f, -0.5f,  0.5f,	-1.0f,  0.0f,  0.0f,
-	-0.5f,  0.5f,  0.5f,	-1.0f,  0.0f,  0.0f,
+	-0.5f,  0.5f,  0.5f,	-1.0f,  0.0f,  0.0f,	1.0f, 0.0f,
+	-0.5f,  0.5f, -0.5f,	-1.0f,  0.0f,  0.0f,	1.0f, 1.0f,
+	-0.5f, -0.5f, -0.5f,	-1.0f,  0.0f,  0.0f,	0.0f, 1.0f,
+	-0.5f, -0.5f, -0.5f,	-1.0f,  0.0f,  0.0f,	0.0f, 1.0f,
+	-0.5f, -0.5f,  0.5f,	-1.0f,  0.0f,  0.0f,	0.0f, 0.0f,
+	-0.5f,  0.5f,  0.5f,	-1.0f,  0.0f,  0.0f,	1.0f, 0.0f,
 
-	// Right face
-	 0.5f,  0.5f,  0.5f,	 1.0f,  0.0f,  0.0f,
-	 0.5f,  0.5f, -0.5f,	 1.0f,  0.0f,  0.0f,
-	 0.5f, -0.5f, -0.5f,	 1.0f,  0.0f,  0.0f,
-	 0.5f, -0.5f, -0.5f,	 1.0f,  0.0f,  0.0f,
-	 0.5f, -0.5f,  0.5f,	 1.0f,  0.0f,  0.0f,
-	 0.5f,  0.5f,  0.5f,	 1.0f,  0.0f,  0.0f,
+	 0.5f,  0.5f,  0.5f,	 1.0f,  0.0f,  0.0f,	1.0f, 0.0f,
+	 0.5f,  0.5f, -0.5f,	 1.0f,  0.0f,  0.0f,	1.0f, 1.0f,
+	 0.5f, -0.5f, -0.5f,	 1.0f,  0.0f,  0.0f,	0.0f, 1.0f,
+	 0.5f, -0.5f, -0.5f,	 1.0f,  0.0f,  0.0f,	0.0f, 1.0f,
+	 0.5f, -0.5f,  0.5f,	 1.0f,  0.0f,  0.0f,	0.0f, 0.0f,
+	 0.5f,  0.5f,  0.5f,	 1.0f,  0.0f,  0.0f,	1.0f, 0.0f,
 
-	 // Bottom face
-	 -0.5f, -0.5f, -0.5f,	 0.0f, -1.0f,  0.0f,
-	  0.5f, -0.5f, -0.5f,	 0.0f, -1.0f,  0.0f,
-	  0.5f, -0.5f,  0.5f,	 0.0f, -1.0f,  0.0f,
-	  0.5f, -0.5f,  0.5f,	 0.0f, -1.0f,  0.0f,
-	 -0.5f, -0.5f,  0.5f,	 0.0f, -1.0f,  0.0f,
-	 -0.5f, -0.5f, -0.5f,	 0.0f, -1.0f,  0.0f,
+	-0.5f, -0.5f, -0.5f,	 0.0f, -1.0f,  0.0f,	0.0f, 1.0f,
+	 0.5f, -0.5f, -0.5f,	 0.0f, -1.0f,  0.0f,	1.0f, 1.0f,
+	 0.5f, -0.5f,  0.5f,	 0.0f, -1.0f,  0.0f,	1.0f, 0.0f,
+	 0.5f, -0.5f,  0.5f,	 0.0f, -1.0f,  0.0f,	1.0f, 0.0f,
+	-0.5f, -0.5f,  0.5f,	 0.0f, -1.0f,  0.0f,	0.0f, 0.0f,
+	-0.5f, -0.5f, -0.5f,	 0.0f, -1.0f,  0.0f,	0.0f, 1.0f,
 
-	 // Top face
-	 -0.5f,  0.5f, -0.5f,	 0.0f,  1.0f,  0.0f,
-	  0.5f,  0.5f, -0.5f,	 0.0f,  1.0f,  0.0f,
-	  0.5f,  0.5f,  0.5f,	 0.0f,  1.0f,  0.0f,
-	  0.5f,  0.5f,  0.5f,	 0.0f,  1.0f,  0.0f,
-	 -0.5f,  0.5f,  0.5f,	 0.0f,  1.0f,  0.0f,
-	 -0.5f,  0.5f, -0.5f,	 0.0f,  1.0f,  0.0f
+	-0.5f,  0.5f, -0.5f,	 0.0f,  1.0f,  0.0f,	0.0f, 1.0f,
+	 0.5f,  0.5f, -0.5f,	 0.0f,  1.0f,  0.0f,	1.0f, 1.0f,
+	 0.5f,  0.5f,  0.5f,	 0.0f,  1.0f,  0.0f,	1.0f, 0.0f,
+	 0.5f,  0.5f,  0.5f,	 0.0f,  1.0f,  0.0f,	1.0f, 0.0f,
+	-0.5f,  0.5f,  0.5f,	 0.0f,  1.0f,  0.0f,	0.0f, 0.0f,
+	-0.5f,  0.5f, -0.5f,	 0.0f,  1.0f,  0.0f,	0.0f, 1.0f
 };
 
 
@@ -161,6 +156,10 @@ int main() {
 	Shader shaderProgram{ "Shaders/default.vert", "Shaders/default.frag" };
 	Shader lightShaderProgram{ "Shaders/light.vert", "Shaders/light.frag" };
 	Shader gouraudShaderProgram{ "Shaders/gouraud.vert", "Shaders/gouraud.frag" };
+
+	Texture2D containerDiffuseMap{ "Textures/container2.png", 0 };
+	Texture2D containerSpecularMap{ "Textures/container2_specular.png", 1 };
+	Texture2D containerEmissionMap{ "Textures/matrix.jpg", 2 };
 	
 	// Configure VAO
 	unsigned int objVAO;
@@ -179,10 +178,12 @@ int main() {
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 6, (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 8, (void*)0);
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 6, (void*)(3 * sizeof(GLfloat)));
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 8, (void*)(3 * sizeof(GLfloat)));
 	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 8, (void*)(6 * sizeof(GLfloat)));
+	glEnableVertexAttribArray(2);
 
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -193,7 +194,7 @@ int main() {
 	glBindVertexArray(lightVAO);
 
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 6, (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 8, (void*)0);
 	glEnableVertexAttribArray(0);
 
 	glBindVertexArray(0);
@@ -240,10 +241,10 @@ int main() {
 		glUniformMatrix4fv(glGetUniformLocation(shaderProgram.id, "view"), 1, GL_FALSE, glm::value_ptr(view));
 		glUniformMatrix4fv(glGetUniformLocation(shaderProgram.id, "proj"), 1, GL_FALSE, glm::value_ptr(proj));
 
-		glUniform3fv(glGetUniformLocation(shaderProgram.id, "material.ambient"), 1, glm::value_ptr(glm::vec3(0.329412f, 0.223529f, 0.027451f)));
-		glUniform3fv(glGetUniformLocation(shaderProgram.id, "material.diffuse"), 1, glm::value_ptr(glm::vec3(0.780392f, 0.568627f, 0.113725f)));
-		glUniform3fv(glGetUniformLocation(shaderProgram.id, "material.specular"), 1, glm::value_ptr(glm::vec3(0.992157f, 0.941176f, 0.807843f)));
-		glUniform1f(glGetUniformLocation(shaderProgram.id, "material.shininess"), 128.0f * 0.21794872f);
+		glUniform1i(glGetUniformLocation(shaderProgram.id, "material.diffuse"), 0);
+		glUniform1i(glGetUniformLocation(shaderProgram.id, "material.specular"), 1);
+		glUniform1i(glGetUniformLocation(shaderProgram.id, "material.emission"), 2);
+		glUniform1f(glGetUniformLocation(shaderProgram.id, "material.shininess"), 32.0f);
 
 		glUniform3fv(glGetUniformLocation(shaderProgram.id, "light.position"), 1, glm::value_ptr(vLightPos));
 		glUniform3fv(glGetUniformLocation(shaderProgram.id, "light.ambient"), 1, glm::value_ptr(ambientColor));
@@ -258,6 +259,10 @@ int main() {
 		//glUniform3fv(glGetUniformLocation(gouraudShaderProgram.id, "objColor"), 1, glm::value_ptr(objColor));
 		//glUniform3fv(glGetUniformLocation(gouraudShaderProgram.id, "lightColor"), 1, glm::value_ptr(lightColor));
 		//glUniform3fv(glGetUniformLocation(gouraudShaderProgram.id, "lightPos"), 1, glm::value_ptr(vLightPos));
+
+		containerDiffuseMap.bind();
+		containerSpecularMap.bind();
+		containerEmissionMap.bind();
 
 		glBindVertexArray(objVAO);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
