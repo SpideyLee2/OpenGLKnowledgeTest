@@ -86,18 +86,18 @@ float vertices[] = {
 
 
 // Positions of cube objects in world space
-//glm::vec3 cubePositions[] = {
-//	glm::vec3(0.0f,  0.0f,  0.0f),
-//	glm::vec3(2.0f,  5.0f, -15.0f),
-//	glm::vec3(-1.5f, -2.2f, -2.5f),
-//	glm::vec3(-3.8f, -2.0f, -12.3f),
-//	glm::vec3(2.4f, -0.4f, -3.5f),
-//	glm::vec3(-1.7f,  3.0f, -7.5f),
-//	glm::vec3(1.3f, -2.0f, -2.5f),
-//	glm::vec3(1.5f,  2.0f, -2.5f),
-//	glm::vec3(1.5f,  0.2f, -1.5f),
-//	glm::vec3(-1.3f,  1.0f, -1.5f)
-//};
+glm::vec3 cubePositions[] = {
+	glm::vec3(0.0f,  0.0f,  0.0f),
+	glm::vec3(2.0f,  5.0f, -15.0f),
+	glm::vec3(-1.5f, -2.2f, -2.5f),
+	glm::vec3(-3.8f, -2.0f, -12.3f),
+	glm::vec3(2.4f, -0.4f, -3.5f),
+	glm::vec3(-1.7f,  3.0f, -7.5f),
+	glm::vec3(1.3f, -2.0f, -2.5f),
+	glm::vec3(1.5f,  2.0f, -2.5f),
+	glm::vec3(1.5f,  0.2f, -1.5f),
+	glm::vec3(-1.3f,  1.0f, -1.5f)
+};
 
 //GLfloat vertices[] = {
 //	// Positions (xyz)		// Colors (rgba)			// Texture Coords
@@ -227,10 +227,10 @@ int main() {
 		
 		//glm::vec3 lightPos{ cos(currFrame) * 2, sin(currFrame) * 2, cos(currFrame)};
 		glm::vec3 vLightPos = glm::vec3(view * glm::vec4(lightPos, 1.0));
-
-		lightColor.x = sin(glfwGetTime() * 2.0f);
-		lightColor.y = sin(glfwGetTime() * 0.7f);
-		lightColor.z = sin(glfwGetTime() * 1.3f);
+		glm::vec3 vLightDir = glm::vec3(view * glm::vec4(-lightPos, 0.0));
+		//lightColor.x = sin(glfwGetTime() * 2.0f);
+		//lightColor.y = sin(glfwGetTime() * 0.7f);
+		//lightColor.z = sin(glfwGetTime() * 1.3f);
 
 		glm::vec3 diffuseColor = lightColor * glm::vec3(0.5f);
 		glm::vec3 ambientColor = lightColor * glm::vec3(0.2f);
@@ -247,6 +247,10 @@ int main() {
 		glUniform1f(glGetUniformLocation(shaderProgram.id, "material.shininess"), 32.0f);
 
 		glUniform3fv(glGetUniformLocation(shaderProgram.id, "light.position"), 1, glm::value_ptr(vLightPos));
+		
+		glUniform1f(glGetUniformLocation(shaderProgram.id, "light.innerCutoff"), glm::cos(glm::radians(12.5f)));
+		glUniform1f(glGetUniformLocation(shaderProgram.id, "light.outerCutoff"), glm::cos(glm::radians(17.5f)));
+
 		glUniform3fv(glGetUniformLocation(shaderProgram.id, "light.ambient"), 1, glm::value_ptr(ambientColor));
 		glUniform3fv(glGetUniformLocation(shaderProgram.id, "light.diffuse"), 1, glm::value_ptr(diffuseColor));
 		glUniform3fv(glGetUniformLocation(shaderProgram.id, "light.specular"), 1, glm::value_ptr(glm::vec3(1.0f)));
@@ -265,6 +269,15 @@ int main() {
 		containerEmissionMap.bind();
 
 		glBindVertexArray(objVAO);
+		for (int i = 0; i < 10; ++i) {
+			objModel = glm::mat4(1.0f);
+			objModel = glm::translate(objModel, cubePositions[i]);
+			float angle = 20.0f * i;
+			objModel = glm::rotate(objModel, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+			glUniformMatrix4fv(glGetUniformLocation(shaderProgram.id, "model"), 1, GL_FALSE, glm::value_ptr(objModel));
+
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+		}
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 		glBindVertexArray(0);
 
