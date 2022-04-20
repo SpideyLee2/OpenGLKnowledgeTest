@@ -33,6 +33,12 @@
     <ClCompile Include="Texture2D.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Mesh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Model.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Shaders\default.vert" />
@@ -41,6 +47,8 @@
     <None Include="Shaders\light.vert" />
     <None Include="Shaders\gouraud.vert" />
     <None Include="Shaders\gouraud.frag" />
+    <None Include="Shaders\model.vert" />
+    <None Include="Shaders\model.frag" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Shader.h">
@@ -53,6 +61,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Texture2D.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Model.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

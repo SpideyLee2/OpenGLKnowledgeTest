@@ -3,7 +3,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-enum class CAMERA_MOVEMENT {
+enum class CameraMovement {
 	FORWARD,
 	BACKWARD,
 	LEFT,
@@ -25,7 +25,7 @@ public:
 
 	Camera(glm::vec3 pos, glm::vec3 front = glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f));
 
-	void input(CAMERA_MOVEMENT movementDirection, float deltaTime);
+	void input(CameraMovement movementDirection, float deltaTime);
 	void applySpeedMultiplier();
 	void removeSpeedMultiplier();
 	void processMouseMove(float xOffset, float yOffset);

@@ -23,24 +23,24 @@ glm::mat4 Camera::getViewMatrix() {
 	return glm::lookAt(cameraPosition, cameraPosition + cameraFront, worldUp);
 }
 
-void Camera::input(CAMERA_MOVEMENT movementDirection, float deltaTime) {
+void Camera::input(CameraMovement movementDirection, float deltaTime) {
 	float velocity = tempSpeed * deltaTime;
-	if (movementDirection == CAMERA_MOVEMENT::FORWARD) {
+	if (movementDirection == CameraMovement::FORWARD) {
 		cameraPosition += cameraFront * velocity;
 	}
-	if (movementDirection == CAMERA_MOVEMENT::BACKWARD) {
+	if (movementDirection == CameraMovement::BACKWARD) {
 		cameraPosition -= cameraFront * velocity;
 	}
-	if (movementDirection == CAMERA_MOVEMENT::LEFT) {
+	if (movementDirection == CameraMovement::LEFT) {
 		cameraPosition -= glm::normalize(glm::cross(cameraFront, worldUp)) * velocity;
 	}
-	if (movementDirection == CAMERA_MOVEMENT::RIGHT) {
+	if (movementDirection == CameraMovement::RIGHT) {
 		cameraPosition += glm::normalize(glm::cross(cameraFront, worldUp)) * velocity;
 	}
-	if (movementDirection == CAMERA_MOVEMENT::UP) {
+	if (movementDirection == CameraMovement::UP) {
 		cameraPosition += worldUp * velocity;
 	}
-	if (movementDirection == CAMERA_MOVEMENT::DOWN) {
+	if (movementDirection == CameraMovement::DOWN) {
 		cameraPosition -= worldUp * velocity;
 	}
 }
