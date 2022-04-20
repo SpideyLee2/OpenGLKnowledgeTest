@@ -9,3 +9,5 @@ If you have Visual Studio, you should be able to just clone the repository and r
 #### SPACE - _Up_ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; LEFT CTRL - _Down_ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 #### LEFT SHIFT (Hold) - _Increases Camera Speed_
 #### MOVE MOUSE CURSOR - _Aims the Camera_
+#### SHIFT + BACKSLASH - _Enables Wireframe_ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; BACKSLASH - _Disables Wireframe_
+#### SHIFT + F - _Disables Spotlight_ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; F - _Enables Spotlight_
