@@ -113,7 +113,7 @@ std::vector<Texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType 
 }
 
 unsigned int textureFromFile(const char* name, std::string dir) {
-    Texture2D tex{ dir + '/' + name, 0 };
+    Texture2D tex{ dir + '/' + name, 0, GL_REPEAT, GL_REPEAT };
     return tex.id;
 }
 

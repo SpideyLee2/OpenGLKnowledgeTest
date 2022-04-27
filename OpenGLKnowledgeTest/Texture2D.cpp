@@ -1,13 +1,13 @@
 #include "Texture2D.h"
 
-Texture2D::Texture2D(std::string dir, int unit) : texUnit(unit) {
+Texture2D::Texture2D(std::string dir, int unit, GLenum sWrapType, GLenum tWrapType) : texUnit(unit) {
 	std::string imageType = dir.substr(dir.size() - 4);
 
 	glGenTextures(1, &id);
 	bind();
 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, sWrapType);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, tWrapType);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
@@ -15,14 +15,24 @@ Texture2D::Texture2D(std::string dir, int unit) : texUnit(unit) {
 	unsigned char* texData = stbi_load(dir.c_str(), &width, &height, &numChannels, 0);
 
 	if (texData) {
-		if (imageType == ".png") {
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, texData);
-		}
-		else if (imageType == ".jpg") {
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, texData);
-		}
-		else {
-			std::cout << "Please add support to the Texture2D class for loading images of type '" << imageType << "'.\n";
+		switch (numChannels) {
+			case 1:
+				glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, width, height, 0, GL_RED, GL_UNSIGNED_BYTE, texData);
+				break;
+			case 2:
+				glTexImage2D(GL_TEXTURE_2D, 0, GL_RG, width, height, 0, GL_RG, GL_UNSIGNED_BYTE, texData);
+				break;
+			case 3:
+				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, texData);
+				break;
+			case 4:
+				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, texData);
+				break;
+			default:
+				std::cout << "Please add support to the Texture2D class for loading images of type '" << imageType
+					<< "'. Deleting this texture object and exiting...\n";
+				glDeleteTextures(1, &id);
+				return;
 		}
 
 		glGenerateMipmap(GL_TEXTURE_2D);

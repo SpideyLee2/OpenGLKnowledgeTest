@@ -8,7 +8,7 @@ class Texture2D {
 public:
 	GLuint id;
 
-	Texture2D(std::string dir, int unit);
+	Texture2D(std::string dir, int unit, GLenum sWrapType, GLenum tWrapType);
 
 	void bind();
 	void unbind();
