@@ -28,7 +28,7 @@ public:
 	void input(CameraMovement movementDirection, float deltaTime);
 	void applySpeedMultiplier();
 	void removeSpeedMultiplier();
-	void processMouseMove(float xOffset, float yOffset);
+	void processMouseMove(float xOffset, float yOffset, bool constrainPitch = true);
 	void processMouseScroll(float yOffset);
 	glm::mat4 getViewMatrix();
 

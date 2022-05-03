@@ -93,6 +93,29 @@ float quadVertices[] = {
 	 0.5f,  0.5f, 0.0f,		1.0f, 1.0f		// top right
 };
 
+// Quad vertices in screen space. Covers the whole screen
+float screenQuadVertices[] = {
+	// Positions	// Tex Coords
+	-1.0f, -1.0f,	0.0f, 0.0f,		// bottom left
+	-1.0f,  1.0f,	0.0f, 1.0f,		// top left
+	 1.0f,  1.0f,	1.0f, 1.0f,		// top right
+
+	-1.0f, -1.0f,	0.0f, 0.0f,		// bottom left
+	 1.0f, -1.0f,	1.0f, 0.0f,		// bottom right
+	 1.0f,  1.0f,	1.0f, 1.0f		// top right
+};
+
+float mirrorQuadVertices[] = {
+	// Positions		// Tex Coords
+	-0.25f,  0.5f,		0.0f, 0.0f,		// bottom left
+	-0.25f,  1.0f,		0.0f, 1.0f,		// top left
+	 0.25f,  1.0f,		1.0f, 1.0f,		// top right
+
+	-0.25f,  0.5f,		0.0f, 0.0f,		// bottom left
+	 0.25f,  0.5f,		1.0f, 0.0f,		// bottom right
+	 0.25f,  1.0f,		1.0f, 1.0f		// top right
+};
+
 // Positions of cube objects in world space
 glm::vec3 cubePositions[] = {
 	glm::vec3(0.0f,  0.0f,  0.0f),
@@ -172,11 +195,13 @@ int main() {
 	stbi_set_flip_vertically_on_load(true);
 
 	Shader cubeShader{ "Shaders/basic.vert", "Shaders/basic.frag" };
-	Shader grassShader{ "Shaders/grass.vert", "Shaders/grass.frag" };
+	//Shader grassShader{ "Shaders/grass.vert", "Shaders/grass.frag" };
 	Shader windowShader{ "Shaders/window.vert", "Shaders/window.frag" };
+	Shader screenShader{ "Shaders/screen.vert", "Shaders/screen.frag" };
 
 	//Texture2D grassTexture{ "Textures/grass.png", 0, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE };
 	Texture2D windowTexture{ "Textures/window.png", 0, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE };
+	Texture2D containerTexture{ "Textures/container.jpg", 0, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE };
 
 	#pragma region Cube_VAO_Setup
 	// Configure VAO
@@ -198,6 +223,8 @@ int main() {
 
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 8, (void*)0);
 	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 8, (void*)(sizeof(float) * 6));
+	glEnableVertexAttribArray(1);
 
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -224,6 +251,76 @@ int main() {
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	#pragma endregion
 
+	#pragma region Screen_Quad_VAO_Setup
+	unsigned int screenQuadVAO, screenQuadVBO;
+	glGenVertexArrays(1, &screenQuadVAO);
+	glGenBuffers(1, &screenQuadVBO);
+
+	glBindVertexArray(screenQuadVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, screenQuadVBO);
+
+	glBufferData(GL_ARRAY_BUFFER, sizeof(screenQuadVertices), screenQuadVertices, GL_STATIC_DRAW);
+
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 4, (void*)0);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 4, (void*)(sizeof(float) * 2));
+	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
+
+	glBindVertexArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	#pragma endregion
+
+	#pragma region Mirror_VAO_Setup
+	unsigned int mirrorVAO, mirrorVBO;
+	glGenVertexArrays(1, &mirrorVAO);
+	glGenBuffers(1, &mirrorVBO);
+
+	glBindVertexArray(mirrorVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, mirrorVBO);
+
+	glBufferData(GL_ARRAY_BUFFER, sizeof(mirrorQuadVertices), mirrorQuadVertices, GL_STATIC_DRAW);
+
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(sizeof(float) * 2));
+
+	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
+
+	glBindVertexArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	#pragma endregion
+
+	#pragma region Framebuffer_Setup
+	unsigned int fbo;
+	glGenFramebuffers(1, &fbo);
+	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+
+	unsigned int textureColorBuffer;
+	glGenTextures(1, &textureColorBuffer);
+	glBindTexture(GL_TEXTURE_2D, textureColorBuffer);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, WIDTH, HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureColorBuffer, 0);
+
+	unsigned int rbo;
+	glGenRenderbuffers(1, &rbo);
+	glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, WIDTH, HEIGHT);
+	glBindRenderbuffer(GL_RENDERBUFFER, 0);
+
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
+
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+		std::cout << "ERROR::FRAMEBUFFER::Framebuffer is not complete!" << std::endl;
+	}
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	#pragma endregion
 
 	// Light cube object VAO setup
 	/*
@@ -443,24 +540,35 @@ int main() {
 		processInput(window);
 
 		// RENDERING
-		// Changes the background color after clearing it and clears the depth buffer bit
+		// Mirror
+		glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+		glEnable(GL_DEPTH_TEST);
 		glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		#pragma region Draw_Scene_First_Pass
+		camera.pitch += 180.0f; // Rotates camera to face in opposite direction
+		camera.processMouseMove(0, 0, false); // Updates camera vectors and disables pitch constaints for reversing camera pitch
 		glm::mat4 view = camera.getViewMatrix();
-		glm::mat4 projection = glm::perspective(glm::radians(camera.fov), (float)WIDTH / (float)HEIGHT, 0.1f, 100.0f);
-		
-		cubeShader.use();
+		camera.pitch -= 180.0f; // Resets camera back to normal rotation
+		camera.processMouseMove(0, 0, true);
 
-		glm::mat4 objModel{ 1.0f };
+		glm::mat4 projection = glm::perspective(glm::radians(camera.fov), (float)WIDTH / (float)HEIGHT, 0.1f, 100.0f);
+
+		cubeShader.use();
+		containerTexture.bind();
+
+		glm::mat4 objModel { 1.0f };
 
 		glUniformMatrix4fv(glGetUniformLocation(cubeShader.id, "model"), 1, GL_FALSE, glm::value_ptr(objModel));
 		glUniformMatrix4fv(glGetUniformLocation(cubeShader.id, "view"), 1, GL_FALSE, glm::value_ptr(view));
 		glUniformMatrix4fv(glGetUniformLocation(cubeShader.id, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 
+		glUniform1i(glGetUniformLocation(cubeShader.id, "tex"), 0);
+
 		glBindVertexArray(objVAO);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
-		
+
 		// Grass Drawing
 		/*
 		grassShader.use();
@@ -480,7 +588,7 @@ int main() {
 			glDrawArrays(GL_TRIANGLES, 0, 6);
 		}
 		*/
-		
+
 		// Window Drawing
 		windowShader.use();
 		windowTexture.bind();
@@ -504,6 +612,81 @@ int main() {
 
 			glDrawArrays(GL_TRIANGLES, 0, 6);
 		}
+		#pragma endregion
+
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		#pragma region Draw_Scene_Second_Pass
+		view = camera.getViewMatrix();
+		projection = glm::perspective(glm::radians(camera.fov), (float)WIDTH / (float)HEIGHT, 0.1f, 100.0f);
+
+		cubeShader.use();
+		containerTexture.bind();
+
+		objModel = glm::mat4{ 1.0f };
+
+		glUniformMatrix4fv(glGetUniformLocation(cubeShader.id, "model"), 1, GL_FALSE, glm::value_ptr(objModel));
+		glUniformMatrix4fv(glGetUniformLocation(cubeShader.id, "view"), 1, GL_FALSE, glm::value_ptr(view));
+		glUniformMatrix4fv(glGetUniformLocation(cubeShader.id, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+
+		glUniform1i(glGetUniformLocation(cubeShader.id, "tex"), 0);
+
+		glBindVertexArray(objVAO);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+
+		// Grass Drawing
+		/*
+		grassShader.use();
+		grassTexture.bind();
+
+		glUniformMatrix4fv(glGetUniformLocation(grassShader.id, "view"), 1, GL_FALSE, glm::value_ptr(view));
+		glUniformMatrix4fv(glGetUniformLocation(grassShader.id, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+		glUniform1i(glGetUniformLocation(grassShader.id, "tex"), 0);
+
+		glBindVertexArray(quadVAO);
+		for (int i = 0; i < grassPositions.size(); ++i) {
+			glm::mat4 grassModel{ 1.0f };
+			grassModel = glm::translate(grassModel, grassPositions[i]);
+
+			glUniformMatrix4fv(glGetUniformLocation(grassShader.id, "model"), 1, GL_FALSE, glm::value_ptr(grassModel));
+
+			glDrawArrays(GL_TRIANGLES, 0, 6);
+		}
+		*/
+
+		// Window Drawing
+		windowShader.use();
+		windowTexture.bind();
+
+		glUniformMatrix4fv(glGetUniformLocation(windowShader.id, "view"), 1, GL_FALSE, glm::value_ptr(view));
+		glUniformMatrix4fv(glGetUniformLocation(windowShader.id, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+		glUniform1i(glGetUniformLocation(windowShader.id, "tex"), 0);
+
+		sortedWindows.clear();
+		for (int i = 0; i < windowPositions.size(); ++i) {
+			float distance = length(camera.cameraPosition - windowPositions[i]);
+			sortedWindows[distance] = windowPositions[i];
+		}
+
+		glBindVertexArray(quadVAO);
+		for (std::map<float, glm::vec3>::reverse_iterator revItr = sortedWindows.rbegin(); revItr != sortedWindows.rend(); ++revItr) {
+			glm::mat4 windowModel{ 1.0f };
+			windowModel = glm::translate(windowModel, revItr->second);
+
+			glUniformMatrix4fv(glGetUniformLocation(windowShader.id, "model"), 1, GL_FALSE, glm::value_ptr(windowModel));
+
+			glDrawArrays(GL_TRIANGLES, 0, 6);
+		}
+		#pragma endregion
+
+		glDisable(GL_DEPTH_TEST);
+
+		screenShader.use();
+		glBindVertexArray(mirrorVAO);
+		glBindTexture(GL_TEXTURE_2D, textureColorBuffer);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
@@ -511,8 +694,6 @@ int main() {
 		printErrors();
 	}
 
-	//glDeleteVertexArrays(1, &objVAO);
-	//glDeleteBuffers(1, &vbo);
 	glfwTerminate();
 
 	return 0;

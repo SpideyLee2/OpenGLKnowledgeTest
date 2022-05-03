@@ -53,14 +53,16 @@ void Camera::removeSpeedMultiplier() {
 	tempSpeed = speed;
 }
 
-void Camera::processMouseMove(float xOffset, float yOffset) {
+void Camera::processMouseMove(float xOffset, float yOffset, bool constrainPitch) {
 	yaw += xOffset * mouseSensitivity;
 	pitch += yOffset * mouseSensitivity;
 
-	if (pitch > pitchConstraintHi)
-		pitch = pitchConstraintHi;
-	else if (pitch < pitchConstraintLo)
-		pitch = pitchConstraintLo;
+	if (constrainPitch) {
+		if (pitch > pitchConstraintHi)
+			pitch = pitchConstraintHi;
+		else if (pitch < pitchConstraintLo)
+			pitch = pitchConstraintLo;
+	}
 
 	glm::vec3 direction;
 	direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));

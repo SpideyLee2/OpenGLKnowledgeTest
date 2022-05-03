@@ -57,6 +57,8 @@
     <None Include="Shaders\window.vert" />
     <None Include="Shaders\grass.frag" />
     <None Include="Shaders\grass.vert" />
+    <None Include="Shaders\screen.vert" />
+    <None Include="Shaders\screen.frag" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Shader.h">
