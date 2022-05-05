@@ -15,6 +15,7 @@
 
 #pragma region Function_Declarations
 void printErrors();
+unsigned int loadCubemap(std::vector<const char*> dirs);
 void drawModel(Model& obj, Shader& shader, const glm::mat4& model, const glm::mat4& view, const glm::mat4& projection);
 void processInput(GLFWwindow* window);
 void framebufferSizeCallback(GLFWwindow* window, int width, int height);
@@ -33,6 +34,7 @@ float lastXPos = WIDTH / 2;
 float lastYPos = HEIGHT / 2;
 
 bool flashlightIsActive = true;
+bool errorPrinted = false;
 
 Camera camera{ glm::vec3(0.0f, 0.0f, 3.0f) };
 
@@ -116,6 +118,96 @@ float mirrorQuadVertices[] = {
 	 0.25f,  1.0f,		1.0f, 1.0f		// top right
 };
 
+float skyboxVertices[] = {
+	// Positions          
+	-1.0f,  1.0f, -1.0f,
+	-1.0f, -1.0f, -1.0f,
+	 1.0f, -1.0f, -1.0f,
+	 1.0f, -1.0f, -1.0f,
+	 1.0f,  1.0f, -1.0f,
+	-1.0f,  1.0f, -1.0f,
+
+	-1.0f, -1.0f,  1.0f,
+	-1.0f, -1.0f, -1.0f,
+	-1.0f,  1.0f, -1.0f,
+	-1.0f,  1.0f, -1.0f,
+	-1.0f,  1.0f,  1.0f,
+	-1.0f, -1.0f,  1.0f,
+
+	 1.0f, -1.0f, -1.0f,
+	 1.0f, -1.0f,  1.0f,
+	 1.0f,  1.0f,  1.0f,
+	 1.0f,  1.0f,  1.0f,
+	 1.0f,  1.0f, -1.0f,
+	 1.0f, -1.0f, -1.0f,
+
+	-1.0f, -1.0f,  1.0f,
+	-1.0f,  1.0f,  1.0f,
+	 1.0f,  1.0f,  1.0f,
+	 1.0f,  1.0f,  1.0f,
+	 1.0f, -1.0f,  1.0f,
+	-1.0f, -1.0f,  1.0f,
+
+	-1.0f,  1.0f, -1.0f,
+	 1.0f,  1.0f, -1.0f,
+	 1.0f,  1.0f,  1.0f,
+	 1.0f,  1.0f,  1.0f,
+	-1.0f,  1.0f,  1.0f,
+	-1.0f,  1.0f, -1.0f,
+
+	-1.0f, -1.0f, -1.0f,
+	-1.0f, -1.0f,  1.0f,
+	 1.0f, -1.0f, -1.0f,
+	 1.0f, -1.0f, -1.0f,
+	-1.0f, -1.0f,  1.0f,
+	 1.0f, -1.0f,  1.0f
+};
+
+float reflectiveCubeVertices[] = {
+	// Positions			// Normals
+	-0.5f, -0.5f, -0.5f,	 0.0f,  0.0f, -1.0f,
+	 0.5f, -0.5f, -0.5f,	 0.0f,  0.0f, -1.0f,
+	 0.5f,  0.5f, -0.5f,	 0.0f,  0.0f, -1.0f,
+	 0.5f,  0.5f, -0.5f,	 0.0f,  0.0f, -1.0f,
+	-0.5f,  0.5f, -0.5f,	 0.0f,  0.0f, -1.0f,
+	-0.5f, -0.5f, -0.5f,	 0.0f,  0.0f, -1.0f,
+
+	-0.5f, -0.5f,  0.5f,	 0.0f,  0.0f, 1.0f,
+	 0.5f, -0.5f,  0.5f,	 0.0f,  0.0f, 1.0f,
+	 0.5f,  0.5f,  0.5f,	 0.0f,  0.0f, 1.0f,
+	 0.5f,  0.5f,  0.5f,	 0.0f,  0.0f, 1.0f,
+	-0.5f,  0.5f,  0.5f,	 0.0f,  0.0f, 1.0f,
+	-0.5f, -0.5f,  0.5f,	 0.0f,  0.0f, 1.0f,
+
+	-0.5f,  0.5f,  0.5f,	-1.0f,  0.0f,  0.0f,
+	-0.5f,  0.5f, -0.5f,	-1.0f,  0.0f,  0.0f,
+	-0.5f, -0.5f, -0.5f,	-1.0f,  0.0f,  0.0f,
+	-0.5f, -0.5f, -0.5f,	-1.0f,  0.0f,  0.0f,
+	-0.5f, -0.5f,  0.5f,	-1.0f,  0.0f,  0.0f,
+	-0.5f,  0.5f,  0.5f,	-1.0f,  0.0f,  0.0f,
+
+	 0.5f,  0.5f,  0.5f,	 1.0f,  0.0f,  0.0f,
+	 0.5f,  0.5f, -0.5f,	 1.0f,  0.0f,  0.0f,
+	 0.5f, -0.5f, -0.5f,	 1.0f,  0.0f,  0.0f,
+	 0.5f, -0.5f, -0.5f,	 1.0f,  0.0f,  0.0f,
+	 0.5f, -0.5f,  0.5f,	 1.0f,  0.0f,  0.0f,
+	 0.5f,  0.5f,  0.5f,	 1.0f,  0.0f,  0.0f,
+
+	-0.5f, -0.5f, -0.5f,	 0.0f, -1.0f,  0.0f,
+	 0.5f, -0.5f, -0.5f,	 0.0f, -1.0f,  0.0f,
+	 0.5f, -0.5f,  0.5f,	 0.0f, -1.0f,  0.0f,
+	 0.5f, -0.5f,  0.5f,	 0.0f, -1.0f,  0.0f,
+	-0.5f, -0.5f,  0.5f,	 0.0f, -1.0f,  0.0f,
+	-0.5f, -0.5f, -0.5f,	 0.0f, -1.0f,  0.0f,
+
+	-0.5f,  0.5f, -0.5f,	 0.0f,  1.0f,  0.0f,
+	 0.5f,  0.5f, -0.5f,	 0.0f,  1.0f,  0.0f,
+	 0.5f,  0.5f,  0.5f,	 0.0f,  1.0f,  0.0f,
+	 0.5f,  0.5f,  0.5f,	 0.0f,  1.0f,  0.0f,
+	-0.5f,  0.5f,  0.5f,	 0.0f,  1.0f,  0.0f,
+	-0.5f,  0.5f, -0.5f,	 0.0f,  1.0f,  0.0f
+};
+
 // Positions of cube objects in world space
 glm::vec3 cubePositions[] = {
 	glm::vec3(0.0f,  0.0f,  0.0f),
@@ -195,12 +287,11 @@ int main() {
 	stbi_set_flip_vertically_on_load(true);
 
 	Shader cubeShader{ "Shaders/basic.vert", "Shaders/basic.frag" };
-	//Shader grassShader{ "Shaders/grass.vert", "Shaders/grass.frag" };
-	Shader windowShader{ "Shaders/window.vert", "Shaders/window.frag" };
 	Shader screenShader{ "Shaders/screen.vert", "Shaders/screen.frag" };
+	Shader skyboxShader{ "Shaders/skybox.vert", "Shaders/skybox.frag" };
+	Shader reflectShader{ "Shaders/reflect.vert", "Shaders/reflect.frag" };
+	Shader refractShader{ "Shaders/refract.vert", "Shaders/refract.frag" };
 
-	//Texture2D grassTexture{ "Textures/grass.png", 0, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE };
-	Texture2D windowTexture{ "Textures/window.png", 0, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE };
 	Texture2D containerTexture{ "Textures/container.jpg", 0, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE };
 
 	#pragma region Cube_VAO_Setup
@@ -231,26 +322,6 @@ int main() {
 	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	#pragma endregion
 
-	#pragma region Quad_VAO_Setup
-	unsigned int quadVAO, quadVBO;
-	glGenVertexArrays(1, &quadVAO);
-	glGenBuffers(1, &quadVBO);
-
-	glBindVertexArray(quadVAO);
-	glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
-
-	glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), quadVertices, GL_STATIC_DRAW);
-	
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 5, (void*)0);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 5, (void*)(sizeof(float) * 3));
-
-	glEnableVertexAttribArray(0);
-	glEnableVertexAttribArray(1);
-
-	glBindVertexArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	#pragma endregion
-
 	#pragma region Screen_Quad_VAO_Setup
 	unsigned int screenQuadVAO, screenQuadVBO;
 	glGenVertexArrays(1, &screenQuadVAO);
@@ -261,25 +332,6 @@ int main() {
 
 	glBufferData(GL_ARRAY_BUFFER, sizeof(screenQuadVertices), screenQuadVertices, GL_STATIC_DRAW);
 
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 4, (void*)0);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 4, (void*)(sizeof(float) * 2));
-	glEnableVertexAttribArray(0);
-	glEnableVertexAttribArray(1);
-
-	glBindVertexArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	#pragma endregion
-
-	#pragma region Mirror_VAO_Setup
-	unsigned int mirrorVAO, mirrorVBO;
-	glGenVertexArrays(1, &mirrorVAO);
-	glGenBuffers(1, &mirrorVBO);
-
-	glBindVertexArray(mirrorVAO);
-	glBindBuffer(GL_ARRAY_BUFFER, mirrorVBO);
-
-	glBufferData(GL_ARRAY_BUFFER, sizeof(mirrorQuadVertices), mirrorQuadVertices, GL_STATIC_DRAW);
-
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(sizeof(float) * 2));
 
@@ -289,6 +341,54 @@ int main() {
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	#pragma endregion
+
+	#pragma region Reflective_Cube_VAO_Setup
+	unsigned int reflectiveCubeVAO, reflectiveCubeVBO;
+	glGenVertexArrays(1, &reflectiveCubeVAO);
+	glGenBuffers(1, &reflectiveCubeVBO);
+
+	glBindVertexArray(reflectiveCubeVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, reflectiveCubeVBO);
+
+	glBufferData(GL_ARRAY_BUFFER, sizeof(reflectiveCubeVertices), reflectiveCubeVertices, GL_STATIC_DRAW);
+
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(sizeof(float) * 3));
+
+	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
+
+	glBindVertexArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	#pragma endregion
+
+	#pragma region Skybox_VAO_Setup
+	unsigned int skyboxVAO, skyboxVBO;
+	glGenVertexArrays(1, &skyboxVAO);
+	glGenBuffers(1, &skyboxVBO);
+
+	glBindVertexArray(skyboxVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, skyboxVBO);
+
+	glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), skyboxVertices, GL_STATIC_DRAW);
+
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+
+	glEnableVertexAttribArray(0);
+
+	glBindVertexArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	#pragma endregion
+
+	std::vector<const char*> skyboxTextureDirs = {
+		"Textures/skybox/right.jpg",	// Right face
+		"Textures/skybox/left.jpg",		// Left face
+		"Textures/skybox/top.jpg",		// Top face
+		"Textures/skybox/bottom.jpg",	// Bottom face
+		"Textures/skybox/front.jpg",	// Front face
+		"Textures/skybox/back.jpg"		// Back face
+	};
+	unsigned int skybox = loadCubemap(skyboxTextureDirs);
 
 	#pragma region Framebuffer_Setup
 	unsigned int fbo;
@@ -322,136 +422,9 @@ int main() {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	#pragma endregion
 
-	// Light cube object VAO setup
-	/*
-	unsigned int vbo;
-	glGenBuffers(1, &vbo);
-
-	unsigned int lightVAO;
-	glGenVertexArrays(1, &lightVAO);
-	glBindVertexArray(lightVAO);
-
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 8, (void*)0);
-	glEnableVertexAttribArray(0);
-
-	glBindVertexArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	*/
-
 	glEnable(GL_DEPTH_TEST);
 
-	// Render loop
-	/*
-	while (!glfwWindowShouldClose(window)) {
-		double currFrame = glfwGetTime();
-		deltaTime = (float)(currFrame - lastFrame);
-		lastFrame = currFrame;
-
-		processInput(window);
-
-		glClearColor(0.3f, 0.05f, 0.3f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		glm::mat4 objModel{ 1.0f };
-
-		glm::mat4 view = camera.getViewMatrix();
-
-		glm::mat4 proj = glm::perspective(glm::radians(camera.fov), (float)WIDTH / (float)HEIGHT, 0.1f, 100.0f);
-		
-		//glm::vec3 lightPos{ cos(currFrame) * 2, sin(currFrame) * 2, cos(currFrame)};
-		//glm::vec3 vLightPos = glm::vec3(view * glm::vec4(lightPos, 1.0));
-		//glm::vec3 vLightDir = glm::vec3(view * glm::vec4(-lightPos, 0.0));
-		//lightColor.x = sin(glfwGetTime() * 2.0f);
-		//lightColor.y = sin(glfwGetTime() * 0.7f);
-		//lightColor.z = sin(glfwGetTime() * 1.3f);
-
-		//glm::vec3 diffuseColor = lightColor * glm::vec3(0.5f);
-		//glm::vec3 ambientColor = lightColor * glm::vec3(0.05f);
-
-		objectShader.use();
-
-		glUniformMatrix4fv(glGetUniformLocation(objectShader.id, "model"), 1, GL_FALSE, glm::value_ptr(objModel));
-		glUniformMatrix4fv(glGetUniformLocation(objectShader.id, "view"), 1, GL_FALSE, glm::value_ptr(view));
-		glUniformMatrix4fv(glGetUniformLocation(objectShader.id, "proj"), 1, GL_FALSE, glm::value_ptr(proj));
-
-		glUniform1i(glGetUniformLocation(objectShader.id, "material.diffuse"), 0);
-		glUniform1i(glGetUniformLocation(objectShader.id, "material.specular"), 1);
-		//glUniform1i(glGetUniformLocation(objectShader.id, "material.emission"), 2);
-		glUniform1f(glGetUniformLocation(objectShader.id, "material.shininess"), 32.0f);
-
-		glm::vec3 dirLightDir = -glm::vec3(view * glm::vec4(0.0f, 1.0f, 0.0f, 0.0f));
-		glUniform3fv(glGetUniformLocation(objectShader.id, "dirLight.direction"), 1, glm::value_ptr(dirLightDir));
-		glUniform3fv(glGetUniformLocation(objectShader.id, "dirLight.ambient"), 1, glm::value_ptr(glm::vec3(0.05f)));
-		glUniform3fv(glGetUniformLocation(objectShader.id, "dirLight.diffuse"), 1, glm::value_ptr(glm::vec3(0.4f)));
-		glUniform3fv(glGetUniformLocation(objectShader.id, "dirLight.specular"), 1, glm::value_ptr(glm::vec3(0.5f)));
-
-		for (int i = 0; i < 4; ++i) {
-			std::string index = std::to_string(i);
-
-			glm::vec3 pointLightPos = glm::vec3(view * glm::vec4(pointLightPositions[i], 1.0f));
-			glUniform3fv(glGetUniformLocation(objectShader.id, ("pointLights[" + index + "].position").c_str()), 1, 
-						 glm::value_ptr(pointLightPos));
-			glUniform1f(glGetUniformLocation(objectShader.id, ("pointLights[" + index + "].constant").c_str()), 1.0f);
-			glUniform1f(glGetUniformLocation(objectShader.id, ("pointLights[" + index + "].linear").c_str()), 0.09f);
-			glUniform1f(glGetUniformLocation(objectShader.id, ("pointLights[" + index + "].quadratic").c_str()), 0.032f);
-			glUniform3fv(glGetUniformLocation(objectShader.id, ("pointLights[" + index + "].ambient").c_str()), 1, 
-						 glm::value_ptr(glm::vec3(0.02f) * pointLightColors[i]));
-			glUniform3fv(glGetUniformLocation(objectShader.id, ("pointLights[" + index + "].diffuse").c_str()), 1, 
-						 glm::value_ptr(glm::vec3(0.8f) * pointLightColors[i]));
-			glUniform3fv(glGetUniformLocation(objectShader.id, ("pointLights[" + index + "].specular").c_str()), 1, 
-						 glm::value_ptr(glm::vec3(1.0f) * pointLightColors[i]));
-		}
-
-		glUniform1f(glGetUniformLocation(objectShader.id, "spotLight.innerCutoff"), glm::cos(glm::radians(12.5f)));
-		glUniform1f(glGetUniformLocation(objectShader.id, "spotLight.outerCutoff"), glm::cos(glm::radians(17.5f)));
-		glUniform1f(glGetUniformLocation(objectShader.id, "spotLight.constant"), 1.0f);
-		glUniform1f(glGetUniformLocation(objectShader.id, "spotLight.linear"), 0.09f);
-		glUniform1f(glGetUniformLocation(objectShader.id, "spotLight.quadratic"), 0.032f);
-		glUniform3fv(glGetUniformLocation(objectShader.id, "spotLight.ambient"), 1, glm::value_ptr(glm::vec3(0.03f)));
-		glUniform3fv(glGetUniformLocation(objectShader.id, "spotLight.diffuse"), 1, glm::value_ptr(glm::vec3(1.0f)));
-		glUniform3fv(glGetUniformLocation(objectShader.id, "spotLight.specular"), 1, glm::value_ptr(glm::vec3(1.0f)));
-
-		containerDiffuseMap.bind();
-		containerSpecularMap.bind();
-		containerEmissionMap.bind();
-
-		glBindVertexArray(objVAO);
-		for (int i = 0; i < 10; ++i) {
-			objModel = glm::mat4(1.0f);
-			objModel = glm::translate(objModel, cubePositions[i]);
-			float angle = 20.0f * i;
-			objModel = glm::rotate(objModel, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
-			glUniformMatrix4fv(glGetUniformLocation(objectShader.id, "model"), 1, GL_FALSE, glm::value_ptr(objModel));
-
-			glDrawArrays(GL_TRIANGLES, 0, 36);
-		}
-
-		lightShader.use();
-
-		glUniformMatrix4fv(glGetUniformLocation(lightShader.id, "view"), 1, GL_FALSE, glm::value_ptr(view));
-		glUniformMatrix4fv(glGetUniformLocation(lightShader.id, "proj"), 1, GL_FALSE, glm::value_ptr(proj));
-
-		glBindVertexArray(lightVAO);
-		for (int i = 0; i < 4; ++i) {
-			glm::mat4 lightModel{ 1.0f };
-			lightModel = glm::translate(lightModel, pointLightPositions[i]);
-			lightModel = glm::scale(lightModel, glm::vec3(0.2f));
-			glUniformMatrix4fv(glGetUniformLocation(lightShader.id, "model"), 1, GL_FALSE, glm::value_ptr(lightModel));
-			glUniform3fv(glGetUniformLocation(lightShader.id, "lightColor"), 1, glm::value_ptr(pointLightColors[i]));
-
-			glDrawArrays(GL_TRIANGLES, 0, 36);
-		}
-
-		glfwSwapBuffers(window);
-		glfwPollEvents();
-	}
-	*/
-	
-	// Model Render Loop
-	/*
+	// Render Loop
 	while (!glfwWindowShouldClose(window)) {
 		float currentFrame = glfwGetTime();
 		deltaTime = currentFrame - lastFrame;
@@ -462,236 +435,80 @@ int main() {
 		processInput(window);
 
 		// RENDERING
-		glEnable(GL_DEPTH_TEST);
-		glEnable(GL_STENCIL_TEST);
-
-		// Changes the background color after clearing it and clears the depth buffer bit
-		glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
-		glStencilFunc(GL_ALWAYS, 1, 0xFF);
-		glStencilMask(0xFF);
-
-		objectShader.use();
-
-		glm::mat4 view = camera.getViewMatrix();
-		glm::mat4 projection = glm::perspective(glm::radians(camera.fov), (float)WIDTH / (float)HEIGHT, 0.1f, 100.0f);
-		glm::mat4 objModel{ 1.0f };
-		objModel = translate(objModel, glm::vec3(0.0f, 0.0f, 0.0f));
-		objModel = scale(objModel, glm::vec3(1.0f, 1.0f, 1.0f));
-
-		drawModel(backpackModel, objectShader, objModel, view, projection);
-
-		glDisable(GL_DEPTH_TEST);
-		glStencilMask(0x00);
-
-		glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-		glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
-
-		outlineShader.use();
-
-		//objModel = glm::scale(objModel, glm::vec3(1.1f, 1.1f, 1.1f));
-
-		glUniformMatrix4fv(glGetUniformLocation(outlineShader.id, "model"), 1, GL_FALSE, glm::value_ptr(objModel));
-		glUniformMatrix4fv(glGetUniformLocation(outlineShader.id, "view"), 1, GL_FALSE, glm::value_ptr(view));
-		glUniformMatrix4fv(glGetUniformLocation(outlineShader.id, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
-		glUniform3fv(glGetUniformLocation(outlineShader.id, "outlineColor"), 1, glm::value_ptr(glm::vec3(1.0f, 1.0f, 0.0f)));
-
-		backpackModel2.draw(outlineShader);
-
-		glEnable(GL_DEPTH_TEST);
-		glStencilFunc(GL_ALWAYS, 0, 0xFF);
-		glStencilMask(0xFF);
-
-		//lightShader.use();
-
-		//glUniformMatrix4fv(glGetUniformLocation(lightShader.id, "view"), 1, GL_FALSE, glm::value_ptr(view));
-		//glUniformMatrix4fv(glGetUniformLocation(lightShader.id, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
-
-		//glBindVertexArray(lightVAO);
-		//for (int i = 0; i < 4; ++i) {
-		//	glm::mat4 lightModel{ 1.0f };
-		//	lightModel = glm::translate(lightModel, pointLightPositions[i]);
-		//	lightModel = glm::scale(lightModel, glm::vec3(0.2f));
-		//	glUniformMatrix4fv(glGetUniformLocation(lightShader.id, "model"), 1, GL_FALSE, glm::value_ptr(lightModel));
-		//	glUniform3fv(glGetUniformLocation(lightShader.id, "lightColor"), 1, glm::value_ptr(pointLightColors[i]));
-
-		//	glDrawArrays(GL_TRIANGLES, 0, 36);
-		//}
-
-		glfwSwapBuffers(window);
-		glfwPollEvents();
-
-		//printErrors();
-	}
-	*/	
-	
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-	// Transparent objects render loop
-	while (!glfwWindowShouldClose(window)) {
-		float currentFrame = glfwGetTime();
-		deltaTime = currentFrame - lastFrame;
-		lastFrame = currentFrame;
-
-		// INPUT
-		// Processes user input
-		processInput(window);
-
-		// RENDERING
-		// Mirror
 		glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 		glEnable(GL_DEPTH_TEST);
 		glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		#pragma region Draw_Scene_First_Pass
-		camera.pitch += 180.0f; // Rotates camera to face in opposite direction
-		camera.processMouseMove(0, 0, false); // Updates camera vectors and disables pitch constaints for reversing camera pitch
+		
 		glm::mat4 view = camera.getViewMatrix();
-		camera.pitch -= 180.0f; // Resets camera back to normal rotation
-		camera.processMouseMove(0, 0, true);
-
 		glm::mat4 projection = glm::perspective(glm::radians(camera.fov), (float)WIDTH / (float)HEIGHT, 0.1f, 100.0f);
 
-		cubeShader.use();
-		containerTexture.bind();
-
-		glm::mat4 objModel { 1.0f };
-
-		glUniformMatrix4fv(glGetUniformLocation(cubeShader.id, "model"), 1, GL_FALSE, glm::value_ptr(objModel));
-		glUniformMatrix4fv(glGetUniformLocation(cubeShader.id, "view"), 1, GL_FALSE, glm::value_ptr(view));
-		glUniformMatrix4fv(glGetUniformLocation(cubeShader.id, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
-
-		glUniform1i(glGetUniformLocation(cubeShader.id, "tex"), 0);
-
-		glBindVertexArray(objVAO);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
-
-		// Grass Drawing
+		// Reflective Cube
 		/*
-		grassShader.use();
-		grassTexture.bind();
+		reflectShader.use();
+		glBindTexture(GL_TEXTURE_CUBE_MAP, skybox);
 
-		glUniformMatrix4fv(glGetUniformLocation(grassShader.id, "view"), 1, GL_FALSE, glm::value_ptr(view));
-		glUniformMatrix4fv(glGetUniformLocation(grassShader.id, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
-		glUniform1i(glGetUniformLocation(grassShader.id, "tex"), 0);
+		glm::mat4 objModel{ 1.0f };
 
-		glBindVertexArray(quadVAO);
-		for (int i = 0; i < grassPositions.size(); ++i) {
-			glm::mat4 grassModel{ 1.0f };
-			grassModel = glm::translate(grassModel, grassPositions[i]);
+		glUniform1i(glGetUniformLocation(reflectShader.id, "skybox"), 0);
+		glUniform3fv(glGetUniformLocation(reflectShader.id, "cameraPos"), 1, glm::value_ptr(camera.cameraPosition));
+		glUniformMatrix4fv(glGetUniformLocation(reflectShader.id, "model"), 1, GL_FALSE, glm::value_ptr(objModel));
+		glUniformMatrix4fv(glGetUniformLocation(reflectShader.id, "view"), 1, GL_FALSE, glm::value_ptr(view));
+		glUniformMatrix4fv(glGetUniformLocation(reflectShader.id, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 
-			glUniformMatrix4fv(glGetUniformLocation(grassShader.id, "model"), 1, GL_FALSE, glm::value_ptr(grassModel));
-
-			glDrawArrays(GL_TRIANGLES, 0, 6);
-		}
+		glBindVertexArray(reflectiveCubeVAO);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
 		*/
 
-		// Window Drawing
-		windowShader.use();
-		windowTexture.bind();
+		// Refractive Cube
+		refractShader.use();
+		glBindTexture(GL_TEXTURE_CUBE_MAP, skybox);
 
-		glUniformMatrix4fv(glGetUniformLocation(windowShader.id, "view"), 1, GL_FALSE, glm::value_ptr(view));
-		glUniformMatrix4fv(glGetUniformLocation(windowShader.id, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
-		glUniform1i(glGetUniformLocation(windowShader.id, "tex"), 0);
+		glm::mat4 objModel{ 1.0f };
 
-		std::map<float, glm::vec3> sortedWindows;
-		for (int i = 0; i < windowPositions.size(); ++i) {
-			float distance = length(camera.cameraPosition - windowPositions[i]);
-			sortedWindows[distance] = windowPositions[i];
-		}
+		glUniform1i(glGetUniformLocation(refractShader.id, "skybox"), 0);
+		glUniform3fv(glGetUniformLocation(refractShader.id, "cameraPos"), 1, glm::value_ptr(camera.cameraPosition));
+		glUniform1f(glGetUniformLocation(refractShader.id, "initMat"), 1.00f);		// Air refractive index
+		glUniform1f(glGetUniformLocation(refractShader.id, "refractMat"), 1.52f);	// Glass refractive index
+		glUniformMatrix4fv(glGetUniformLocation(refractShader.id, "model"), 1, GL_FALSE, glm::value_ptr(objModel));
+		glUniformMatrix4fv(glGetUniformLocation(refractShader.id, "view"), 1, GL_FALSE, glm::value_ptr(view));
+		glUniformMatrix4fv(glGetUniformLocation(refractShader.id, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 
-		glBindVertexArray(quadVAO);
-		for (std::map<float, glm::vec3>::reverse_iterator revItr = sortedWindows.rbegin(); revItr != sortedWindows.rend(); ++revItr) {
-			glm::mat4 windowModel{ 1.0f };
-			windowModel = glm::translate(windowModel, revItr->second);
+		glBindVertexArray(reflectiveCubeVAO);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
 
-			glUniformMatrix4fv(glGetUniformLocation(windowShader.id, "model"), 1, GL_FALSE, glm::value_ptr(windowModel));
+		// Skybox
+		skyboxShader.use();
+		glBindTexture(GL_TEXTURE_CUBE_MAP, skybox);
 
-			glDrawArrays(GL_TRIANGLES, 0, 6);
-		}
-		#pragma endregion
+		glm::mat4 skyboxView = glm::mat4(glm::mat3(view));
+		glUniform1i(glGetUniformLocation(skyboxShader.id, "skybox"), 0);
+		glUniformMatrix4fv(glGetUniformLocation(skyboxShader.id, "view"), 1, GL_FALSE, glm::value_ptr(skyboxView));
+		glUniformMatrix4fv(glGetUniformLocation(skyboxShader.id, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+
+		glEnable(GL_DEPTH_TEST);
+		glDepthFunc(GL_LEQUAL);
+
+		glBindVertexArray(skyboxVAO);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+
+		glDepthFunc(GL_LESS);
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		#pragma region Draw_Scene_Second_Pass
-		view = camera.getViewMatrix();
-		projection = glm::perspective(glm::radians(camera.fov), (float)WIDTH / (float)HEIGHT, 0.1f, 100.0f);
-
-		cubeShader.use();
-		containerTexture.bind();
-
-		objModel = glm::mat4{ 1.0f };
-
-		glUniformMatrix4fv(glGetUniformLocation(cubeShader.id, "model"), 1, GL_FALSE, glm::value_ptr(objModel));
-		glUniformMatrix4fv(glGetUniformLocation(cubeShader.id, "view"), 1, GL_FALSE, glm::value_ptr(view));
-		glUniformMatrix4fv(glGetUniformLocation(cubeShader.id, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
-
-		glUniform1i(glGetUniformLocation(cubeShader.id, "tex"), 0);
-
-		glBindVertexArray(objVAO);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
-
-		// Grass Drawing
-		/*
-		grassShader.use();
-		grassTexture.bind();
-
-		glUniformMatrix4fv(glGetUniformLocation(grassShader.id, "view"), 1, GL_FALSE, glm::value_ptr(view));
-		glUniformMatrix4fv(glGetUniformLocation(grassShader.id, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
-		glUniform1i(glGetUniformLocation(grassShader.id, "tex"), 0);
-
-		glBindVertexArray(quadVAO);
-		for (int i = 0; i < grassPositions.size(); ++i) {
-			glm::mat4 grassModel{ 1.0f };
-			grassModel = glm::translate(grassModel, grassPositions[i]);
-
-			glUniformMatrix4fv(glGetUniformLocation(grassShader.id, "model"), 1, GL_FALSE, glm::value_ptr(grassModel));
-
-			glDrawArrays(GL_TRIANGLES, 0, 6);
-		}
-		*/
-
-		// Window Drawing
-		windowShader.use();
-		windowTexture.bind();
-
-		glUniformMatrix4fv(glGetUniformLocation(windowShader.id, "view"), 1, GL_FALSE, glm::value_ptr(view));
-		glUniformMatrix4fv(glGetUniformLocation(windowShader.id, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
-		glUniform1i(glGetUniformLocation(windowShader.id, "tex"), 0);
-
-		sortedWindows.clear();
-		for (int i = 0; i < windowPositions.size(); ++i) {
-			float distance = length(camera.cameraPosition - windowPositions[i]);
-			sortedWindows[distance] = windowPositions[i];
-		}
-
-		glBindVertexArray(quadVAO);
-		for (std::map<float, glm::vec3>::reverse_iterator revItr = sortedWindows.rbegin(); revItr != sortedWindows.rend(); ++revItr) {
-			glm::mat4 windowModel{ 1.0f };
-			windowModel = glm::translate(windowModel, revItr->second);
-
-			glUniformMatrix4fv(glGetUniformLocation(windowShader.id, "model"), 1, GL_FALSE, glm::value_ptr(windowModel));
-
-			glDrawArrays(GL_TRIANGLES, 0, 6);
-		}
-		#pragma endregion
-
 		glDisable(GL_DEPTH_TEST);
 
+		// Off-screen rendered screen quad
 		screenShader.use();
-		glBindVertexArray(mirrorVAO);
+		glBindVertexArray(screenQuadVAO);
 		glBindTexture(GL_TEXTURE_2D, textureColorBuffer);
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 
-		printErrors();
+		//printErrors();
 	}
 
 	glfwTerminate();
@@ -724,8 +541,46 @@ void printErrors() {
 				error = "How am I even here to begin with?";
 		}
 		std::cout << "Error " << errorCode << ": " << error << std::endl;
+		errorPrinted = true;
 		errorCode = glGetError();
 	}
+}
+
+unsigned int loadCubemap(std::vector<const char*> dirs) {
+	int dirsSize = dirs.size();
+	if (dirsSize < 6) {
+		std::cout << "ERROR: A vector of at least six directories must be provided to load a cubemap. Number provided: " 
+				  << dirsSize << "\nReturning 0..." << std::endl;
+		return 0;
+	}
+	
+	unsigned int cubemap;
+	glGenTextures(1, &cubemap);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, cubemap);
+
+	int width, height, numChannels;
+	stbi_set_flip_vertically_on_load(false);
+	for (int i = 0; i < 6; ++i) {
+		unsigned char* data = stbi_load(dirs[i], &width, &height, &numChannels, 0);
+		if (data) {
+			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+		}
+		else {
+			std::cout << "ERROR: Cannot load image at: " << dirs[i] << std::endl;
+		}
+		stbi_image_free(data);
+	}
+	stbi_set_flip_vertically_on_load(true);
+
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+	glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+
+	return cubemap;
 }
 
 void drawModel(Model& obj, Shader& shader, const glm::mat4& model, const glm::mat4& view, const glm::mat4& projection) {

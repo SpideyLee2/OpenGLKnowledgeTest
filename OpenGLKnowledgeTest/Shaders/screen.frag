@@ -36,6 +36,13 @@ void main() {
         vec2( offset, -offset)  // bottom-right  
 	);
 
+	// Default Kernel
+	const float kernel[9] = float[] (
+		0, 0, 0,
+		0, 1, 0,
+		0, 0, 0
+	);
+
 	// Sharpen Kernel
 	/*
 	const float kernel[9] = float[] (
@@ -55,11 +62,13 @@ void main() {
 	*/
 
 	// Edge-Detection Kernel
+	/*
 	const float kernel[9] = float[] (
 		1,  1, 1,
 		1, -8, 1,
 		1,  1, 1
 	);
+	*/
 
 	// Emboss Kernel
 	/*

@@ -59,6 +59,12 @@
     <None Include="Shaders\grass.vert" />
     <None Include="Shaders\screen.vert" />
     <None Include="Shaders\screen.frag" />
+    <None Include="Shaders\skybox.frag" />
+    <None Include="Shaders\skybox.vert" />
+    <None Include="Shaders\reflect.vert" />
+    <None Include="Shaders\reflect.frag" />
+    <None Include="Shaders\refract.vert" />
+    <None Include="Shaders\refract.frag" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Shader.h">

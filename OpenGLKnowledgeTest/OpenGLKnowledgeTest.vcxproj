@@ -173,8 +173,14 @@
     <None Include="Shaders\light.vert" />
     <None Include="Shaders\outline.frag" />
     <None Include="Shaders\outline.vert" />
+    <None Include="Shaders\reflect.frag" />
+    <None Include="Shaders\reflect.vert" />
+    <None Include="Shaders\refract.frag" />
+    <None Include="Shaders\refract.vert" />
     <None Include="Shaders\screen.frag" />
     <None Include="Shaders\screen.vert" />
+    <None Include="Shaders\skybox.frag" />
+    <None Include="Shaders\skybox.vert" />
     <None Include="Shaders\window.frag" />
     <None Include="Shaders\window.vert" />
   </ItemGroup>
